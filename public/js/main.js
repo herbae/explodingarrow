@@ -6,7 +6,7 @@ var game = new Phaser.Game(600, 800, Phaser.AUTO, '', { preload: preload, create
 
 function preload() {
     game.load.image('sky', 'assets/overcast.png');
-    game.load.image('ship', 'assets/ship.png');
+    game.load.image('ship', 'assets/ship transparent.png');
     game.load.image('platform', 'assets/platform.png');
 }
 
@@ -30,24 +30,29 @@ function create() {
 }
 
 function update() {
-    var v = ship.body.velocity.x;
+    game.physics.arcade.collide(ship, platforms, explodeShip);
 
-    if(cursors.left.isDown) {
-        v -= 25;
-    } else if(cursors.right.isDown) {
-        v += 25;
-    } else {
-        if(v < 0) {
-            v += 50;
-        } else if(v > 0) {
-            v -= 50;
-        }
-    }
-    ship.body.velocity.x = v;
+    ship.body.velocity.x = updateVelocity(ship.body.velocity.x, cursors.left.isDown, cursors.right.isDown);
 }
 
 function render() {
     game.debug.cameraInfo(game.camera, 50, 32);
+}
+
+function updateVelocity(shipVelocity, leftIsDown, rightIsDown) {
+    if(leftIsDown) {
+        return shipVelocity - 50;
+    } else if(rightIsDown) {
+        return shipVelocity + 50;
+    } else {
+        if(shipVelocity < -50) {
+            return shipVelocity + 50;
+        } else if(shipVelocity > 50) {
+            return shipVelocity - 50;
+        } else {
+            return 0;
+        }
+    }
 }
 
 function createShip() {
@@ -79,6 +84,10 @@ function createPlatforms() {
     }
 
     return platforms;
+}
+
+function explodeShip(ship) {
+    ship.kill();
 }
 
 })();
