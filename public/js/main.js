@@ -15,11 +15,11 @@ var cursors;
 var platforms;
 
 function create() {
-    game.world.setBounds(0, 0, 600, 3000);
+    game.world.setBounds(0, 0, 600, 15000);
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    game.add.sprite(0, 0, 'sky');
+    game.add.tileSprite(0, 0, game.world.width, game.world.height, 'sky');
 
     ship = createShip();
     platforms = createPlatforms();
@@ -40,17 +40,20 @@ function render() {
 }
 
 function updateVelocity(shipVelocity, leftIsDown, rightIsDown) {
+    var accDelta = 10;
+    var brakeDelta = 10;
+
     if(leftIsDown) {
-        return shipVelocity - 50;
+        return shipVelocity - accDelta;
     } else if(rightIsDown) {
-        return shipVelocity + 50;
+        return shipVelocity + accDelta;
     } else {
-        if(shipVelocity < -50) {
-            return shipVelocity + 50;
-        } else if(shipVelocity > 50) {
-            return shipVelocity - 50;
+        if(shipVelocity < -brakeDelta) {
+            return shipVelocity + brakeDelta;
+        } else if(shipVelocity > brakeDelta) {
+            return shipVelocity - brakeDelta;
         } else {
-            return 0;
+            return 0;   
         }
     }
 }
@@ -74,10 +77,10 @@ function createPlatforms() {
     var min = -300;
     var max = 300;
 
-    var i;
-    for(i = 0; i < 10; i++) {
+    var y = game.world.height - 400;
+    while(y > 0) {
         var x = min + Math.random() * (max - min);
-        var y = 250 + i * 250;
+        y = y - 250;
 
         var p = platforms.create(x, y, 'platform');
         p.body.immovable = true;
